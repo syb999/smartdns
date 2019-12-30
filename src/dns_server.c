@@ -1688,6 +1688,11 @@ static int _dns_server_process_ptr(struct dns_request *request)
 		found = 1;
 	}
 
+	/* Determine if the smartdns service is in effect. */
+	if (found == 0 && strncmp(request->domain, "smartdns", sizeof("smartdns")) == 0) {
+		found = 1;
+	}
+
 	if (found == 0) {
 		goto errout;
 	}
@@ -2496,7 +2501,7 @@ static int _dns_server_tcp_process_one_request(struct dns_server_conn_tcp_client
 			return RECV_ERROR_FAIL;
 		}
 
-		if (request_len > (total_len - proceed_len)) {
+		if (request_len > (total_len - proceed_len - sizeof(unsigned short))) {
 			ret = RECV_ERROR_AGAIN;
 			break;
 		}
